@@ -1,14 +1,13 @@
-'use client'
-import React, { useState, useEffect } from "react";
+"use client";
+import React, { useEffect } from "react";
 import Link from "next/link";
 import {
   signInWithGoogle,
   signOut,
-  onAuthStateChanged
+  onIdTokenChanged,
 } from "@/src/lib/firebase/auth.js";
 import { addFakeRestaurantsAndReviews } from "@/src/lib/firebase/firestore.js";
-import { useRouter } from "next/navigation";
-import { firebaseConfig } from "@/src/lib/firebase/config";
+import { setCookie, deleteCookie } from "cookies-next";
 
 function useUserSession(initialUser) {
   useEffect(() => {
@@ -29,63 +28,65 @@ function useUserSession(initialUser) {
   return initialUser;
 }
 
-export default function Header({initialUser}) {
+export default function Header({ initialUser }) {
+  const user = useUserSession(initialUser);
 
-  const user = useUserSession(initialUser) ;
-
-  const handleSignOut = event => {
+  const handleSignOut = (event) => {
     event.preventDefault();
     signOut();
   };
 
-  const handleSignIn = event => {
+  const handleSignIn = (event) => {
     event.preventDefault();
     signInWithGoogle();
   };
 
   return (
-      <header>
-        <Link href="/" className="logo">
-          <img src="/friendly-eats.svg" alt="FriendlyEats" />
-          Friendly Eats
-        </Link>
-        {user ? (
-            <>
-              <div className="profile">
-                <p>
-                  <img className="profileImage" src={user.photoURL || "/profile.svg"} alt={user.email} />
-                  {user.displayName}
-                </p>
+    <header>
+      <Link href="/" className="logo">
+        <img src="/friendly-eats.svg" alt="FriendlyEats" />
+        Friendly Eats
+      </Link>
+      {user ? (
+        <>
+          <div className="profile">
+            <p>
+              <img
+                className="profileImage"
+                src={user.photoURL || "/profile.svg"}
+                alt={user.email}
+              />
+              {user.displayName}
+            </p>
 
-                <div className="menu">
-                  ...
-                  <ul>
-                    <li>{user.displayName}</li>
+            <div className="menu">
+              ...
+              <ul>
+                <li>{user.displayName}</li>
 
-                    <li>
-                      <a
-                          href="#"
-                          onClick={addFakeRestaurantsAndReviews}
-                      >
-                        Add sample restaurants
-                      </a>
-                    </li>
+                <li>
+                  <a href="#" onClick={addFakeRestaurantsAndReviews}>
+                    Add sample restaurants
+                  </a>
+                </li>
 
-                    <li>
-                      <a href="#" onClick={handleSignOut}>
-                        Sign Out
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </>
-        ) : (
-            <div className="profile"><a href="#" onClick={handleSignIn}>
-              <img src="/profile.svg" alt="A placeholder user image" />
-              Sign In with Google
-            </a></div>
-        )}
-      </header>
+                <li>
+                  <a href="#" onClick={handleSignOut}>
+                    Sign Out
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </>
+      ) : (
+        <div className="profile">
+          <a href="#" onClick={handleSignIn}>
+            <img src="/profile.svg" alt="A placeholder user image" />
+            Sign In with Google
+          </a>
+        </div>
+      )}
+    </header>
   );
 }
