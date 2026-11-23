@@ -30,9 +30,10 @@ export async function GeminiSummary({ restaurantId }) {
         }
 
         // Configure a Genkit instance.
+        // gemini-2.0-flash is shut down; register a current model with the plugin.
         const ai = genkit({
-            plugins: [googleAI()],
-            model: gemini("gemini-3.6-flash"), // set default model
+            plugins: [googleAI({ models: ["gemini-3.6-flash"] })],
+            model: gemini("gemini-3.6-flash"),
         });
         const { text } = await ai.generate(prompt);
 
